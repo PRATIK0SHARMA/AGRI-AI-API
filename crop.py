@@ -52,7 +52,7 @@ print(f"\nmodels folder exists: {os.path.exists(models_path)}")
 app = FastAPI()
 
 # Use absolute paths
-CROP_MODEL_PATH = os.path.join(BASE_DIR, "models","xgb_crop_model.pkl")
+CROP_MODEL_PATH = os.path.join(BASE_DIR, "models","xgb_compressed.joblib")
 CROP_SCALER_PATH = os.path.join(BASE_DIR, "models", "minmax_scaler.pkl")
 DISEASE_MODEL_PATH = os.path.join(BASE_DIR, "models", "Crop_Disease_Model (1).keras")
 CROP_TRANSLATIONS_PATH = os.path.join(BASE_DIR, "translations", "crop_pred_translations.json")
@@ -241,4 +241,5 @@ async def predict_disease(
        }
 
    except Exception as e:
+
        return {"error": f"Prediction failed: {str(e)}"}
