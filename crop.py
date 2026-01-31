@@ -88,21 +88,44 @@ SUPPORTED_LANGUAGES = { "english": "en", "eng": "en", "en": "en",
    "punjabi": "pa", "pun": "pa", "pa": "pa", "panjabi": "pa"}
 
 # Load XGBoost crop model and scaler
-crop_model = joblib.load(CROP_MODEL_PATH)
-crop_scaler = joblib.load(CROP_SCALER_PATH)
-print("Crop model and scaler loaded successfully!")
+# crop_model = joblib.load(CROP_MODEL_PATH)
+# crop_scaler = joblib.load(CROP_SCALER_PATH)
+# print("Crop model and scaler loaded successfully!")
 
-# Load TensorFlow disease model
-tf.keras.backend.clear_session()
-try:
-   disease_model = tf.keras.models.load_model(
-       DISEASE_MODEL_PATH,
-       custom_objects={'KerasLayer': tf.keras.layers.Layer}
-   )
-   print("Disease model loaded successfully!")
-except Exception as e:
-   print(f"Error loading disease model: {e}")
-   disease_model = None
+# # Load TensorFlow disease model
+# tf.keras.backend.clear_session()
+# try:
+#    disease_model = tf.keras.models.load_model(
+#        DISEASE_MODEL_PATH,
+#        custom_objects={'KerasLayer': tf.keras.layers.Layer}
+#    )
+#    print("Disease model loaded successfully!")
+# except Exception as e:
+#    print(f"Error loading disease model: {e}")
+#    disease_model = None
+
+crop_model = None
+crop_scaler = None
+disease_model = None
+
+def get_crop_model():
+    global crop_model, crop_scaler
+    if crop_model is None:
+        crop_model = joblib.load(CROP_MODEL_PATH)
+        crop_scaler = joblib.load(CROP_SCALER_PATH)
+    return crop_model, crop_scaler
+
+def load_disease_model():
+    global disease_model
+    if disease_model is None:
+        print("Loading disease model...")
+        tf.keras.backend.clear_session()
+        disease_model = tf.keras.models.load_model(
+            DISEASE_MODEL_PATH,
+            custom_objects={'KerasLayer': tf.keras.layers.Layer}
+        )
+        print("Disease model loaded!")
+    return disease_model
 
 # Disease model labels
 disease_labels = ['Corn___Common_Rust',
@@ -132,16 +155,17 @@ crop_labels=['apple', 'banana', 'blackgram', 'chickpea', 'coconut', 'coffee', 'c
 async def predict_crop(N: int, P: int, K: int, temperature: float, humidity: float, ph: float, rainfall: float,language: str = "english"):
    # Prepare raw input in the exact order used during training
    # Order: N, P, K, temperature, humidity, ph, rainfall
+   model, scaler = get_crop_model()
    if language not in SUPPORTED_LANGUAGES:
        language = "english"
    lang_code=SUPPORTED_LANGUAGES[language]
    raw_input = np.array([[N, P, K, temperature, humidity, ph, rainfall]], dtype=np.float32)
 
    # Scale input using the same scaler used during training
-   scaled_input = crop_scaler.transform(raw_input)
+   scaled_input = scaler.transform(raw_input)
 
    # Get predictions from scaled input
-   probabilities = crop_model.predict_proba(scaled_input)[0]
+   probabilities = model.predict_proba(scaled_input)[0]
 
    # Get top predictions
    top1_index = np.argmax(probabilities)
@@ -188,7 +212,9 @@ async def predict_disease(
            language = "english"
        lang_code = SUPPORTED_LANGUAGES[language]
 
-       if disease_model is None:
+       model = load_disease_model()  # Add this line
+       
+       if model is None:  # Change from disease_model to model
            return {"error": "Disease model failed to load"}
 
        image_bytes = None
@@ -216,7 +242,7 @@ async def predict_disease(
        img_array = np.expand_dims(img_array, axis=0)
 
        # Make prediction
-       predictions = disease_model.predict(img_array, verbose=0)
+       predictions = model.predict(img_array, verbose=0)
 
        predicted_idx = np.argmax(predictions[0])
        top_3_indices = np.argsort(predictions[0])[-3:][::-1]
@@ -241,5 +267,4 @@ async def predict_disease(
        }
 
    except Exception as e:
-
        return {"error": f"Prediction failed: {str(e)}"}
