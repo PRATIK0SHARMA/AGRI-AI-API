@@ -8,3 +8,9 @@ Dockerfile
 dockerfile
 functions/
 .nixpacks/
+*.keras
+*.joblib
+*.pkl
+*.tar.gz
+*.whl
+__pycache__/
