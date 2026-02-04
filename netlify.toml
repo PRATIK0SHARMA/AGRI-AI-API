@@ -3,20 +3,13 @@
   command = "pip install -r requirements.txt"
 
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/server/:splat"
-  status = 200
-
-[[redirects]]  
   from = "/*"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/"
-  to = "/api/"
+  to = "/.netlify/functions/server"
   status = 200
 
 [functions]
   directory = "functions"
-  node_bundler = "esbuild"
+  
+# ADD THIS - Force Python runtime
+[functions.server]
+  runtime = "python3.11"
