@@ -268,3 +268,26 @@ async def predict_disease(
 
    except Exception as e:
        return {"error": f"Prediction failed: {str(e)}"}
+
+# ==================== RAILWAY DEPLOYMENT SETUP ====================
+import uvicorn
+import nest_asyncio
+
+# Apply nest_asyncio for async compatibility
+nest_asyncio.apply()
+
+# Railway runs this when starting the app
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    print(f"Starting FastAPI server on port {port}")
+    uvicorn.run(
+        app, 
+        host="0.0.0.0", 
+        port=port,
+        log_level="info"
+    )
+      
+      
+      
+      
+
