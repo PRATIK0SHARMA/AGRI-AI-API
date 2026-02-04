@@ -1,0 +1,12 @@
+name: agri-ai-api
+routes:
+  - port: 8000
+    path: /
+build:
+  dockerfile: |
+    FROM python:3.11-slim
+    WORKDIR /app
+    COPY requirements.txt .
+    RUN pip install --no-cache-dir -r requirements.txt
+    COPY . .
+    CMD ["uvicorn", "crop:app", "--host", "0.0.0.0", "--port", "8000"]
