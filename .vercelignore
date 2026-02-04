@@ -1,5 +1,6 @@
 netlify.toml
 railway.json
+.python-version
 render.yaml
 koyeb.yaml
 Procfile
