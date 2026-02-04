@@ -1,0 +1,9 @@
+netlify.toml
+railway.json
+render.yaml
+koyeb.yaml
+Procfile
+Dockerfile
+dockerfile
+functions/
+.nixpacks/
