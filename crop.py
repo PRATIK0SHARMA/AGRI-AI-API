@@ -282,9 +282,17 @@ if __name__ == "__main__":
         port=port,
         log_level="info"
     )
+
+# ==================== AWS COMPATIBILITY ====================
+# This makes it compatible with AWS Elastic Beanstalk's gunicorn
+application = app  # ADD THIS LINE
+
+   
+   
       
       
       
       
+
 
 
