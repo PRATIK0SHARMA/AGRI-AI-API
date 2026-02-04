@@ -1,8 +1,0 @@
-{
-  "excludes": [
-    "tensorboard",
-    "tensorboard-data-server",
-    "keras",
-    "libclang"
-  ]
-}
